@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors')
+const conexion = require('./db')
 
 const app = express()
 
@@ -10,7 +11,6 @@ app.get('/', (req, res) => {
     res.send('¡El servidor está funcionando!')
 })
 
-const conexion = require('./db')
 app.get('/productos', (req, res) => {
     conexion.query('SELECT * FROM productos', (error, resultados) => {
         if (error) {
@@ -21,9 +21,20 @@ app.get('/productos', (req, res) => {
     })
 })
 
+app.put('/productos/:id', (req, res) => {
+    const id = req.params.id
+    const nuevoStock = req.body.stock
+
+    conexion.query('UPDATE productos SET stock = ? WHERE id = ?', [nuevoStock, id], (error, resultado) => {
+        if (error) {
+            res.status(500).json({ error: 'Error al actualizar stock' })
+        } else {
+            res.json({ mensaje: 'Stock actualizado' })
+        }
+    })
+})
+
 const PUERTO = 3000
 app.listen(PUERTO, () => {
     console.log(`Servidor corriendo en http://localhost:${PUERTO}`)
 })
-
-
